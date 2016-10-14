@@ -36,6 +36,7 @@ class Map(Base):
     public = Column(Boolean)
     create_date = Column(DateTime, default=datetime.datetime.now)
     update_date = Column(DateTime, onupdate=datetime.datetime.now)
+    updated_by = Column(Unicode(50))
     zoom = Column(Integer)
     x = Column(Float)
     y = Column(Float)
@@ -95,6 +96,7 @@ class Map(Base):
                  'public': map.public,
                  'create_date': map.create_date,
                  'update_date': map.update_date,
+                 'updated_by': map.updated_by,
                  'category': map.category.name
                  if map.category_id is not None else None,
                  'owner': map.user_login} for map in maps]
@@ -123,12 +125,15 @@ class Feature(Base):
     font_size = Column(Integer, default=15)
     opacity = Column(Float, default=0.5)
     shape = Column(Unicode(255))
+    updated_by = Column(Unicode(50))
+    update_date = Column(DateTime, onupdate=datetime.datetime.now)
 
     def __init__(self, feature=None):
         if feature:
             self.__update__(feature)
 
     def __update__(self, feature):
+        self.updated_by = feature.properties.get('updated_by')
         self.name = feature.properties.get('name')
         self.description = feature.properties.get('description')
         self.thumbnail = feature.properties.get('thumbnail')
@@ -220,7 +225,9 @@ class Feature(Base):
     @property
     def __geo_interface__(self):
         geometry = wkb.loads(str(self.geometry), True)
-        properties = dict(name=self.name,
+        properties = dict(updated_by=self.updated_by,
+                          update_date=self.update_date,
+                          name=self.name,
                           description=self.description,
                           thumbnail=self.thumbnail,
                           image=self.image,

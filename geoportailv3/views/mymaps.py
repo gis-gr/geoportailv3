@@ -197,6 +197,7 @@ class Mymaps(object):
                      'public': map.public,
                      'create_date': map.create_date,
                      'update_date': map.update_date,
+                     'updated_by': map.updated_by,
                      'category': map.category.name
                      if map.category_id is not None else None,
                      'owner': map.user_login} for map in maps]
@@ -308,7 +309,7 @@ class Mymaps(object):
             return HTTPUnauthorized()
         map = Map()
         map.user_login = user.username
-
+        map.updated_by = user.username
         return self.save(map)
 
     @view_config(route_name="mymaps_copy", renderer='json')
@@ -333,6 +334,7 @@ class Mymaps(object):
             map.description = unicode(params.get('description'))
         map.public = False
         map.user_login = user.username
+        map.updated_by = user.username
         map.category_id = None
         if 'category_id' in params:
             cat = params.get('category_id')
@@ -353,6 +355,7 @@ class Mymaps(object):
                 DBSession.expunge(f)
                 make_transient(f)
                 f.id = None
+                f.updated_by = user.username
                 map.features.append(f)
             DBSession.commit()
 
@@ -422,7 +425,7 @@ class Mymaps(object):
                 DBSession.delete(cur_feature)
 
             obj = Feature(feature)
-
+            obj.updated_by = self.request.user.username
             map.features.append(obj)
             DBSession.commit()
             return {'success': True, 'id': obj.id}
@@ -452,11 +455,11 @@ class Mymaps(object):
 
             for feature in feature_collection['features']:
                 feature_id = feature.properties.get('fid')
-
                 if feature_id:
                     cur_feature = DBSession.query(Feature).get(feature_id)
                     DBSession.delete(cur_feature)
                 obj = Feature(feature)
+                obj.updated_by = self.request.user.username
                 map.features.append(obj)
 
             DBSession.commit()
@@ -592,28 +595,6 @@ class Mymaps(object):
                 map.public = False
         if 'label' in params:
             map.label = unicode(params.get('label'))
-        # if '_dc' not in params:
-        #     map.public = params.get('public') == 'on'
-
-        #
-        # deal with the features
-        #
-        # delete all features for the given map
-        # if id:
-        #    DBSession.query(Feature).filter(Feature.map_id == id).delete()
-        # if 'features' in params:
-        #    features = params.get('features').replace(u'\ufffd', '?')
-        #    collection = geojson.loads(
-        #        features, object_hook=geojson.GeoJSON.to_instance)
-        #
-        #    if not isinstance(collection, geojson.FeatureCollection):
-        #        return HTTPBadRequest()
-        #
-        #    for feature in collection.features:
-        #        if not isinstance(feature, geojson.Feature):
-        #            return HTTPBadRequest()
-        #        obj = Feature(feature)
-        #        map.features.append(obj)
 
         #
         # send everything to the DB
