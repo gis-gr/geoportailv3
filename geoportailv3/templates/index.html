@@ -328,6 +328,7 @@
          appModule.constant('pagUrl', "${request.route_url('pag_url')}");
          appModule.constant('appExcludeThemeLayerSearch', "${exclude_theme_layer_search}".split(','));
          appModule.constant('appAuthtktCookieName', "${authtkt_cookie_name}");
+         appModule.constant('proxyiframeUrl', "${request.route_url('proxyiframe')}");
 % if overview_map_show:
          appModule.constant('appOverviewMapShow', true);
 % else:

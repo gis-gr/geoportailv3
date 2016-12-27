@@ -74,6 +74,7 @@ app.module.directive('appQuery', app.queryDirective);
  * @param {app.DrawnFeatures} appDrawnFeatures Drawn features service.
  * @param {string} appAuthtktCookieName The authentication cookie name.
  * @param {app.Notify} appNotify Notify service.
+ * @param {string} proxyiframeUrl The proxyiframe url.
  * @export
  * @ngInject
  */
@@ -83,7 +84,13 @@ app.QueryController = function($sce, $timeout, $scope, $http,
     downloadmeasurementUrl, downloadsketchUrl, gettextCatalog, appThemes,
     appGetLayerForCatalogNode, appGetDevice, mymapsImageUrl, appExport,
     appActivetool, appSelectedFeatures, appDrawnFeatures, appAuthtktCookieName,
-    appNotify) {
+    appNotify, proxyiframeUrl) {
+  /**
+   * @type {string}
+   * @private
+   */
+  this.proxyiframeUrl_ = proxyiframeUrl;
+
   /**
    * @type {app.Notify}
    * @private
@@ -875,7 +882,7 @@ app.QueryController.prototype.getTemplatePath = function(layer) {
  * @export
  */
 app.QueryController.prototype.getTrustedUrl = function(url) {
-  return this.sce_.trustAsResourceUrl(url);
+  return this.sce_.trustAsResourceUrl(this.proxyiframeUrl_ + '?url=' + encodeURIComponent(url));
 };
 
 
@@ -902,15 +909,15 @@ app.QueryController.prototype.trustAsHtml = function(content) {
 app.QueryController.prototype.getTrustedUrlByLang = function(urlFr,
     urlDe, urlEn, urlLb) {
   if (this['language'] == 'fr') {
-    return this.sce_.trustAsResourceUrl(urlFr);
+    return this.sce_.trustAsResourceUrl(this.proxyiframeUrl_ + '?url=' + encodeURIComponent(urlFr));
   } else if (this['language'] == 'de') {
-    return this.sce_.trustAsResourceUrl(urlDe);
+    return this.sce_.trustAsResourceUrl(this.proxyiframeUrl_ + '?url=' + encodeURIComponent(urlDe));
   } else if (this['language'] == 'en') {
-    return this.sce_.trustAsResourceUrl(urlEn);
+    return this.sce_.trustAsResourceUrl(this.proxyiframeUrl_ + '?url=' + encodeURIComponent(urlEn));
   } else if (this['language'] == 'lb') {
-    return this.sce_.trustAsResourceUrl(urlLb);
+    return this.sce_.trustAsResourceUrl(this.proxyiframeUrl_ + '?url=' + encodeURIComponent(urlLb));
   }
-  return this.sce_.trustAsResourceUrl(urlFr);
+  return this.sce_.trustAsResourceUrl(this.proxyiframeUrl_ + '?url=' + encodeURIComponent(urlFr));
 };
 
 

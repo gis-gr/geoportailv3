@@ -44,6 +44,7 @@ include CONST_Makefile
 REQUIREMENTS += "suds>=0.4"
 REQUIREMENTS += "ipaddr==2.1.11"
 REQUIREMENTS += "pyocclient==0.2"
+REQUIREMENTS += "beautifulsoup4==4.5.1"
 # DEV_REQUIREMENTS += git+https://github.com/transifex/transifex-client.git@fix-proxies#egg=transifex-client-proxies
 DEV_REQUIREMENTS += git+https://github.com/petzlux/transifex-client.git
 PRINT_VERSION = NONE 
